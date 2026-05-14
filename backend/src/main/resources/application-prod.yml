@@ -1,4 +1,4 @@
-# Production profile configuration
+# Production datasource and JPA configuration
 spring:
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
