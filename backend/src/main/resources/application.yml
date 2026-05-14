@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev   # overridden by SPRING_PROFILES_ACTIVE env var on Railway
+
+server:
+  port: ${PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET:taskmanager-super-secret-key-that-is-long-enough-for-hs256-algorithm-2024}
+  expiration: 86400000
+
+logging:
+  level:
+    com.taskmanager: INFO
+    org.springframework.security: WARN

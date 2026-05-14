@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TaskFlow — My Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">⚡</div><span>TaskFlow</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="/dashboard.html"><span class="nav-icon">📊</span>Dashboard</a>
+      <a class="nav-link" href="/projects.html"><span class="nav-icon">📁</span>Projects</a>
+      <a class="nav-link active" href="/tasks.html"><span class="nav-icon">✅</span>My Tasks</a>
+      <div class="nav-section-label" id="admin-label" style="display:none">Admin</div>
+      <a class="nav-link admin-only" href="/users.html" style="display:none"><span class="nav-icon">👥</span>Team Members</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="sb-avatar" class="avatar" style="background:#6366f1"></div>
+        <div><div class="user-name" id="sb-name"></div><div class="user-role" id="sb-role"></div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page-header">
+      <div><h1 class="page-title">My Tasks</h1><p class="page-subtitle">All tasks assigned to you</p></div>
+    </div>
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" class="form-control" placeholder="Search tasks…" oninput="filterTasks()"/>
+      </div>
+      <select class="form-control" id="filter-status" style="width:auto" onchange="filterTasks()">
+        <option value="">All Status</option>
+        <option value="TODO">To Do</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="REVIEW">Review</option>
+        <option value="DONE">Done</option>
+      </select>
+      <select class="form-control" id="filter-priority" style="width:auto" onchange="filterTasks()">
+        <option value="">All Priority</option>
+        <option value="CRITICAL">Critical</option>
+        <option value="HIGH">High</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="LOW">Low</option>
+      </select>
+    </div>
+    <div id="task-container"><div class="spinner"></div></div>
+  </main>
+</div>
+<script src="/js/api.js"></script>
+<script>
+requireAuth();
+const user = getUser();
+let allTasks = [];
+document.getElementById('sb-name').textContent = user.name;
+document.getElementById('sb-role').textContent = user.role;
+document.getElementById('sb-avatar').textContent = user.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+if (isAdmin()) { document.getElementById('admin-label').style.display=''; document.querySelectorAll('.admin-only').forEach(el=>el.style.display=''); }
+
+async function load() {
+  try {
+    allTasks = await GET('/tasks/my');
+    renderTasks(allTasks);
+  } catch(e) { showToast('Failed to load tasks','error'); }
+}
+
+function renderTasks(tasks) {
+  const el = document.getElementById('task-container');
+  if (!tasks.length) { el.innerHTML='<div class="empty-state"><div class="empty-state-icon">📭</div><h3>No tasks found</h3><p>Tasks assigned to you will appear here.</p></div>'; return; }
+  el.innerHTML = '<div class="task-list">' + tasks.map(t => `
+    <div class="task-item ${t.overdue?'overdue':''}" onclick="window.location='/project-detail.html?id=${t.projectId}'">
+      <div class="task-info">
+        <div class="task-title">${t.title}</div>
+        <div class="task-meta">📁 ${t.projectName} · 📅 ${formatDate(t.dueDate)}${t.overdue?' 🔴 Overdue':''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        ${priorityBadge(t.priority)}
+        ${statusBadge(t.status)}
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+function filterTasks() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const s = document.getElementById('filter-status').value;
+  const p = document.getElementById('filter-priority').value;
+  renderTasks(allTasks.filter(t =>
+    (!q || t.title.toLowerCase().includes(q) || t.projectName.toLowerCase().includes(q)) &&
+    (!s || t.status === s) && (!p || t.priority === p)
+  ));
+}
+load();
+</script>
+</body>
+</html>

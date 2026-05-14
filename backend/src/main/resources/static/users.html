@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TaskFlow — Team Members</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">⚡</div><span>TaskFlow</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="/dashboard.html"><span class="nav-icon">📊</span>Dashboard</a>
+      <a class="nav-link" href="/projects.html"><span class="nav-icon">📁</span>Projects</a>
+      <a class="nav-link" href="/tasks.html"><span class="nav-icon">✅</span>My Tasks</a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-link active" href="/users.html"><span class="nav-icon">👥</span>Team Members</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="sb-avatar" class="avatar" style="background:#6366f1"></div>
+        <div><div class="user-name" id="sb-name"></div><div class="user-role" id="sb-role"></div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page-header">
+      <div><h1 class="page-title">Team Members</h1><p class="page-subtitle">Manage user accounts and roles</p></div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table id="users-table">
+          <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="users-body"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="/js/api.js"></script>
+<script>
+requireAuth();
+if (!isAdmin()) window.location.href = '/dashboard.html';
+const user = getUser();
+document.getElementById('sb-name').textContent = user.name;
+document.getElementById('sb-role').textContent = user.role;
+document.getElementById('sb-avatar').textContent = user.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+
+async function load() {
+  try {
+    const users = await GET('/users');
+    document.getElementById('users-body').innerHTML = users.map(u => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar" style="background:#6366f1">${u.name.split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
+          <span style="font-weight:500">${u.name}</span>
+        </div></td>
+        <td style="color:var(--text-secondary)">${u.email}</td>
+        <td><span class="badge badge-${u.role.toLowerCase()}">${u.role}</span></td>
+        <td style="color:var(--text-muted)">${formatDate(u.createdAt)}</td>
+        <td>
+          ${u.id !== user.id ? `
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" onclick="toggleRole(${u.id},'${u.role}')">
+              ${u.role === 'ADMIN' ? '⬇️ Make Member' : '⬆️ Make Admin'}
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="delUser(${u.id},'${u.name.replace("'","\\'")}')">🗑️</button>
+          </div>` : '<span style="font-size:12px;color:var(--text-muted)">(you)</span>'}
+        </td>
+      </tr>`).join('');
+  } catch(e) { showToast('Failed to load users','error'); }
+}
+
+async function toggleRole(id, current) {
+  const newRole = current === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+  try { await PUT(`/users/${id}/role`, { role: newRole }); showToast('Role updated!'); load(); }
+  catch(e) { showToast(e.message,'error'); }
+}
+
+async function delUser(id, name) {
+  if (!confirm(`Delete user "${name}"?`)) return;
+  try { await DELETE(`/users/${id}`); showToast('User deleted'); load(); }
+  catch(e) { showToast(e.message,'error'); }
+}
+load();
+</script>
+</body>
+</html>

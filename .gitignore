@@ -1,0 +1,49 @@
+# ─── Build output ────────────────────────────────────────────────────────────
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# ─── Maven wrapper (not present, but just in case) ───────────────────────────
+.mvn/
+mvnw
+mvnw.cmd
+
+# ─── Secrets & environment files — NEVER commit these ────────────────────────
+.env
+.env.*
+!.env.example
+*.properties
+application-local.yml
+application-local.yaml
+
+# ─── IDE files ───────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+*.launch
+*.sublime-workspace
+*.sublime-project
+
+# ─── VS Code ─────────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+
+# ─── OS files ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+spring.log
+
+# ─── Antigravity / agent data ────────────────────────────────────────────────
+.gemini/

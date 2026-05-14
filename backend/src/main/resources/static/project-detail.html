@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TaskFlow — Project Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">⚡</div><span>TaskFlow</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="/dashboard.html"><span class="nav-icon">📊</span>Dashboard</a>
+      <a class="nav-link" href="/projects.html"><span class="nav-icon">📁</span>Projects</a>
+      <a class="nav-link" href="/tasks.html"><span class="nav-icon">✅</span>My Tasks</a>
+      <div class="nav-section-label" id="admin-label" style="display:none">Admin</div>
+      <a class="nav-link admin-only" href="/users.html" style="display:none"><span class="nav-icon">👥</span>Team Members</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="sb-avatar" class="avatar" style="background:#6366f1"></div>
+        <div><div class="user-name" id="sb-name"></div><div class="user-role" id="sb-role"></div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <a href="/projects.html" style="color:var(--text-muted);font-size:13px">← Projects</a>
+        </div>
+        <h1 class="page-title" id="project-title">Loading…</h1>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+          <span id="project-status-badge"></span>
+          <span style="font-size:13px;color:var(--text-secondary)" id="project-deadline-info"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-secondary admin-only" style="display:none" onclick="openMemberModal()" id="btn-members">👥 Team</button>
+        <button class="btn btn-primary" onclick="openTaskModal()" id="btn-add-task" style="display:none">+ Add Task</button>
+      </div>
+    </div>
+
+    <!-- PROJECT STATS ROW -->
+    <div class="stats-grid" id="proj-stats" style="grid-template-columns:repeat(5,1fr);margin-bottom:24px"></div>
+
+    <!-- KANBAN BOARD -->
+    <div class="kanban-board" id="kanban-board">
+      <div class="kanban-col col-todo" id="col-TODO">
+        <div class="kanban-col-header"><div class="kanban-col-title">📋 To Do <span class="kanban-count" id="count-TODO">0</span></div></div>
+        <div class="kanban-cards" id="cards-TODO" data-status="TODO"></div>
+      </div>
+      <div class="kanban-col col-inprogress" id="col-IN_PROGRESS">
+        <div class="kanban-col-header"><div class="kanban-col-title">⚡ In Progress <span class="kanban-count" id="count-IN_PROGRESS">0</span></div></div>
+        <div class="kanban-cards" id="cards-IN_PROGRESS" data-status="IN_PROGRESS"></div>
+      </div>
+      <div class="kanban-col col-review" id="col-REVIEW">
+        <div class="kanban-col-header"><div class="kanban-col-title">👁️ Review <span class="kanban-count" id="count-REVIEW">0</span></div></div>
+        <div class="kanban-cards" id="cards-REVIEW" data-status="REVIEW"></div>
+      </div>
+      <div class="kanban-col col-done" id="col-DONE">
+        <div class="kanban-col-header"><div class="kanban-col-title">✅ Done <span class="kanban-count" id="count-DONE">0</span></div></div>
+        <div class="kanban-cards" id="cards-DONE" data-status="DONE"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="task-modal-title">New Task</div>
+      <button class="modal-close" onclick="closeTaskModal()">✕</button>
+    </div>
+    <form onsubmit="saveTask(event)">
+      <div class="form-group">
+        <label class="form-label">Task Title *</label>
+        <input type="text" id="t-title" class="form-control" placeholder="e.g. Design homepage mockup" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="t-desc" class="form-control" rows="3" placeholder="Task details…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="t-status" class="form-control">
+            <option value="TODO">To Do</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="REVIEW">Review</option>
+            <option value="DONE">Done</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select id="t-priority" class="form-control">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM" selected>Medium</option>
+            <option value="HIGH">High</option>
+            <option value="CRITICAL">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" id="t-due" class="form-control"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assignee</label>
+          <select id="t-assignee" class="form-control"><option value="">Unassigned</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-task-btn">Create Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MEMBER MODAL -->
+<div class="modal-overlay" id="member-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Team Members</div>
+      <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    </div>
+    <div id="members-list" style="margin-bottom:20px"></div>
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div class="section-title" style="margin-bottom:12px">Add Member</div>
+      <div style="display:flex;gap:10px">
+        <select id="add-member-select" class="form-control" style="flex:1"></select>
+        <button class="btn btn-primary" onclick="addMember()">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/tasks.js"></script>
+</body>
+</html>

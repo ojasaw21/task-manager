@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TaskFlow — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link active" href="/dashboard.html"><span class="nav-icon">📊</span>Dashboard</a>
+      <a class="nav-link" href="/projects.html"><span class="nav-icon">📁</span>Projects</a>
+      <a class="nav-link" href="/tasks.html"><span class="nav-icon">✅</span>My Tasks</a>
+      <div class="nav-section-label" id="admin-label" style="display:none">Admin</div>
+      <a class="nav-link admin-only" href="/users.html" style="display:none"><span class="nav-icon">👥</span>Team Members</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div id="sb-avatar" class="avatar"></div>
+        <div><div class="user-name" id="sb-name"></div><div class="user-role" id="sb-role"></div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle" id="greeting"></p>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card blue skeleton" style="height:110px"></div>
+      <div class="stat-card green skeleton" style="height:110px"></div>
+      <div class="stat-card yellow skeleton" style="height:110px"></div>
+      <div class="stat-card red skeleton" style="height:110px"></div>
+      <div class="stat-card purple skeleton" style="height:110px"></div>
+      <div class="stat-card cyan skeleton" style="height:110px"></div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <!-- MY RECENT TASKS -->
+      <div class="card">
+        <div class="section-title">🗂️ Recent Tasks</div>
+        <div id="recent-tasks"><div class="spinner"></div></div>
+      </div>
+      <!-- PROJECTS OVERVIEW -->
+      <div class="card">
+        <div class="section-title">📁 Projects Overview</div>
+        <div id="projects-overview"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- OVERDUE TASKS (admin) -->
+    <div class="card" id="overdue-section" style="display:none">
+      <div class="section-title">🔴 Overdue Tasks</div>
+      <div id="overdue-tasks"></div>
+    </div>
+  </main>
+</div>
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
